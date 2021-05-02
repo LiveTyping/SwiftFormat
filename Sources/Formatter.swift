@@ -597,4 +597,32 @@ public extension Formatter {
         }
         return .linebreak(options.linebreak, lineNumber)
     }
+    
+    func addLinebreakAtStartOfScope(index i: Int, canInsertSpace: Bool) {
+        guard canInsertSpace else { return }
+
+        guard let linebreakToken = self.token(at: i + 2),
+              !linebreakToken.isLinebreak
+        else { return }
+
+        guard let endOfScopeToken = self.token(at: i + 1),
+              endOfScopeToken != .endOfScope("{")
+        else { return }
+
+        self.insertLinebreak(at: i + 1)
+    }
+    
+    func addLineBreakToEndOfScope(index i: Int, canInsertSpace: Bool) {
+        guard canInsertSpace,
+              let endOfScopeTokenIndex = self.endOfScope(at: i)
+        else { return }
+        
+        guard let linebreakToken = self.token(at: endOfScopeTokenIndex - 2),
+              !linebreakToken.isLinebreak
+        else { return }
+        
+        guard !self.onSameLine(i, endOfScopeTokenIndex) else { return }
+        
+        self.insertLinebreak(at: endOfScopeTokenIndex - 1)
+    }
 }

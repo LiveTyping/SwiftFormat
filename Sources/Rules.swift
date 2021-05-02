@@ -1043,34 +1043,10 @@ public struct _FormatRules {
                 canInsertSpaceAtStart = false
 
             case .startOfScope("{"):
-                guard canInsertSpaceAtStart else { return }
-                startToken = token
+                formatter.addLinebreakAtStartOfScope(index: i, canInsertSpace: canInsertSpaceAtStart)
+                formatter.addLineBreakToEndOfScope(index: i, canInsertSpace: canInsertSpaceAtStart)
+                
                 canInsertSpaceAtStart = false
-
-                guard let linebreakToken = formatter.token(at: i + 2),
-                      !linebreakToken.isLinebreak
-                else { return }
-
-                guard let endOfScopeToken = formatter.token(at: i + 1),
-                      endOfScopeToken != .endOfScope("{")
-                else { return }
-
-                formatter.insertLinebreak(at: i + 1)
-
-            case .endOfScope("}"):
-                guard let startToken = startToken,
-                      token.isEndOfScope(startToken)
-                else { return }
-
-                guard let linebreakToken = formatter.token(at: i - 2),
-                      !linebreakToken.isLinebreak
-                else { return }
-
-                guard let startOfScopeToken = formatter.token(at: i - 1),
-                      startOfScopeToken != .startOfScope("{")
-                else { return }
-
-                formatter.insertLinebreak(at: i - 1)
 
             default:
                 break
