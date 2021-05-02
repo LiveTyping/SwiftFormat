@@ -12,6 +12,27 @@ import XCTest
 class BlanklineInScopeTests: XCTestCase {
     // MARK: - Space in start/end of scope
 
+    func testGuardLet() {
+        let input = """
+            func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
+                    guard let navigationController = navigationController else { return }
+
+                    navigationController.setNavigationBarHidden(isHidden, animated: animated)
+            }
+        """
+
+        let output = """
+            func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
+                    guard let navigationController = navigationController else { return }
+
+                    navigationController.setNavigationBarHidden(isHidden, animated: animated)
+            }
+        """
+
+        let formattedInput = (try? format(input, rules: [FormatRules.insertBlankLinesAtScope])) ?? ""
+        XCTAssertEqual(output, formattedInput)
+    }
+
     func testBlankLineAtStartOfScope() {
         let input = """
         struct Foo {

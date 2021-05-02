@@ -115,6 +115,7 @@ extension BlanklineInScopeTests {
         ("testBlanklinesInsideProtocolExtension", testBlanklinesInsideProtocolExtension),
         ("testBlankLinesInStruct", testBlankLinesInStruct),
         ("testBlankLinesInStruct_noSpacing", testBlankLinesInStruct_noSpacing),
+        ("testGuardLet", testGuardLet),
     ]
 }
 
