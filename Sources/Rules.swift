@@ -1023,6 +1023,120 @@ public struct _FormatRules {
         }
     }
 
+    public let insertBlankLinesAtScope = FormatRule(
+        help: "Insert blank line at start/end of scope class, struct, extension"
+    ) { formatter in
+
+        var canInsertSpaceAtStart = false
+        var startToken: Token?
+
+        formatter.forEachToken { i, token in
+            switch token {
+            case .keyword("class"),
+                 .keyword("struct"),
+                 .keyword("extension"):
+                canInsertSpaceAtStart = true
+
+            case .keyword("func"),
+                 .keyword("var"),
+                 .keyword("protocol"):
+                canInsertSpaceAtStart = false
+
+            case .startOfScope("{"):
+                guard canInsertSpaceAtStart else { return }
+                startToken = token
+
+                guard let linebreakToken = formatter.token(at: i + 2),
+                      !linebreakToken.isLinebreak
+                else { return }
+
+                guard let endOfScopeToken = formatter.token(at: i + 1),
+                      endOfScopeToken != .endOfScope("{")
+                else { return }
+
+                formatter.insertLinebreak(at: i + 1)
+
+            case .endOfScope("}"):
+                guard let startToken = startToken,
+                      token.isEndOfScope(startToken)
+                else { return }
+
+                guard let linebreakToken = formatter.token(at: i - 2),
+                      !linebreakToken.isLinebreak
+                else { return }
+
+                guard let startOfScopeToken = formatter.token(at: i - 1),
+                      startOfScopeToken != .startOfScope("{")
+                else { return }
+
+                formatter.insertLinebreak(at: i - 1)
+
+            default:
+                break
+            }
+        }
+
+        formatter.forEachToken { i, token in
+            switch token {
+            case .keyword("class"),
+                 .keyword("struct"),
+                 .keyword("extension"):
+                guard let startOfScopeIndex = formatter.index(of: .startOfScope("{"), after: i),
+                      !(formatter.token(at: startOfScopeIndex + 2)?.isLinebreak ?? true)
+                else { return }
+
+                if let wrongToken = formatter.lastToken(before: startOfScopeIndex, where: {
+                    $0 == .keyword("func") || $0 == .keyword("protocol")
+                }),
+                    let wrongIndex = formatter.index(of: token, before: startOfScopeIndex)
+                {
+                    let startOfScopeLine = formatter.originalLine(at: startOfScopeIndex)
+                    let funcLine = formatter.originalLine(at: startOfScopeIndex)
+                    if startOfScopeLine == funcLine { return }
+                }
+
+                formatter.insertLinebreak(at: startOfScopeIndex + 1)
+
+            case .endOfScope("}"):
+                guard let currentScopeToken = formatter.currentScope(at: i),
+                      let startOfScopeIndex = formatter.index(of: currentScopeToken, before: i),
+                      let token = formatter.lastToken(before: startOfScopeIndex, where: {
+                          $0 == .keyword("class") ||
+                              $0 == .keyword("struct") ||
+                              $0 == .keyword("extension")
+                      }),
+                      let keywordIndex = formatter.index(of: token, before: startOfScopeIndex)
+                else { return }
+
+                let startOfScopeLine = formatter.originalLine(at: startOfScopeIndex)
+                let keywordLine = formatter.originalLine(at: keywordIndex)
+
+                if let wrongToken = formatter.lastToken(before: startOfScopeIndex, where: {
+                    $0 == .keyword("func") || $0 == .keyword("protocol")
+                }),
+                    let wrongIndex = formatter.index(of: token, before: startOfScopeIndex)
+                {
+                    let funcLine = formatter.originalLine(at: wrongIndex)
+                    if startOfScopeLine == funcLine { return }
+                }
+
+                guard startOfScopeLine == keywordLine else { return }
+                guard !(formatter.token(at: i)?.isLinebreak ?? true) else { return }
+                guard let prevEndScopeIndex = formatter.index(of: .endOfScope, before: i) else { return }
+
+                let isCloseBrace = formatter.token(at: prevEndScopeIndex) == .endOfScope("}")
+                let isCorrectEndOfScope = isCloseBrace || !(formatter.token(at: i - 3)?.isLinebreak ?? true)
+
+                guard isCorrectEndOfScope, prevEndScopeIndex == i - 2 else { return }
+
+                formatter.insertLinebreak(at: prevEndScopeIndex + 1)
+
+            default:
+                break
+            }
+        }
+    }
+
     /// Adds a blank line around MARK: comments
     public let blankLinesAroundMark = FormatRule(
         help: "Insert blank line before and after `MARK:` comments.",
