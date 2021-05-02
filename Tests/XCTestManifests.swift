@@ -118,6 +118,7 @@ extension BlanklineInScopeTests {
         ("testGuardLet", testGuardLet),
         ("testStructWithoutFuncs", testStructWithoutFuncs),
         ("testStructWithoutFuncs_notFormat", testStructWithoutFuncs_notFormat),
+        ("testStructWithoutFuncsWithOffset", testStructWithoutFuncsWithOffset),
     ]
 }
 

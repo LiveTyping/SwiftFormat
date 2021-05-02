@@ -617,18 +617,22 @@ public extension Formatter {
               let endOfScopeTokenIndex = endOfScope(at: i)
         else { return }
 
+        var linebreakToken: Token?
+
         if let spaceToken = token(at: endOfScopeTokenIndex - 1),
            spaceToken.isSpace
         {
-            replaceToken(at: endOfScopeTokenIndex - 1, with: [linebreakToken(for: endOfScopeTokenIndex - 1)])
+            linebreakToken = token(at: endOfScopeTokenIndex - 3)
+        } else {
+            linebreakToken = token(at: endOfScopeTokenIndex - 2)
         }
 
-        guard let linebreakToken = token(at: endOfScopeTokenIndex - 2),
-              !linebreakToken.isLinebreak
+        guard let token = linebreakToken,
+              !token.isLinebreak
         else { return }
 
         guard !onSameLine(i, endOfScopeTokenIndex) else { return }
 
-        insertLinebreak(at: endOfScopeTokenIndex)
+        insertLinebreak(at: endOfScopeTokenIndex - 1)
     }
 }

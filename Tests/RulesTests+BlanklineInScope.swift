@@ -379,6 +379,30 @@ class BlanklineInScopeTests: XCTestCase {
         XCTAssertEqual(output, formattedInput)
     }
 
+    func testStructWithoutFuncsWithOffset() {
+        let input = """
+            struct Input {
+
+                let eventName: Observable<String>
+                let selectPlace: Observable<Void>
+                let isAllDay: Observable<Bool>
+            }
+        """
+
+        let output = """
+            struct Input {
+
+                let eventName: Observable<String>
+                let selectPlace: Observable<Void>
+                let isAllDay: Observable<Bool>
+
+            }
+        """
+
+        let formattedInput = (try? format(input, rules: [FormatRules.insertBlankLinesAtScope])) ?? ""
+        XCTAssertEqual(output, formattedInput)
+    }
+
     func testStructWithoutFuncs_notFormat() {
         let input = """
         struct Input {
