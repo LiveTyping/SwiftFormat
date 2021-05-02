@@ -1028,7 +1028,6 @@ public struct _FormatRules {
     ) { formatter in
 
         var canInsertSpaceAtStart = false
-        var startToken: Token?
 
         formatter.forEachToken { i, token in
             switch token {
@@ -1045,7 +1044,7 @@ public struct _FormatRules {
             case .startOfScope("{"):
                 formatter.addLinebreakAtStartOfScope(index: i, canInsertSpace: canInsertSpaceAtStart)
                 formatter.addLineBreakToEndOfScope(index: i, canInsertSpace: canInsertSpaceAtStart)
-                
+
                 canInsertSpaceAtStart = false
 
             default:

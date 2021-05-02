@@ -336,24 +336,74 @@ class BlanklineInScopeTests: XCTestCase {
 
     func testGuardLet() {
         let input = """
-            func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
-                    guard let navigationController = navigationController else { return }
+        func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
+                guard let navigationController = navigationController else { return }
 
-                    navigationController.setNavigationBarHidden(isHidden, animated: animated)
-            }
+                navigationController.setNavigationBarHidden(isHidden, animated: animated)
+        }
         """
 
         let output = """
-            func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
-                    guard let navigationController = navigationController else { return }
+        func setNavigationBarHidden(_ isHidden: Bool, animated: Bool) {
+                guard let navigationController = navigationController else { return }
 
-                    navigationController.setNavigationBarHidden(isHidden, animated: animated)
-            }
+                navigationController.setNavigationBarHidden(isHidden, animated: animated)
+        }
         """
 
         let formattedInput = (try? format(input, rules: [FormatRules.insertBlankLinesAtScope])) ?? ""
         XCTAssertEqual(output, formattedInput)
     }
+
+    func testStructWithoutFuncs() {
+        let input = """
+        struct Input {
+
+            let eventName: Observable<String>
+            let selectPlace: Observable<Void>
+            let isAllDay: Observable<Bool>
+        }
+        """
+
+        let output = """
+        struct Input {
+
+            let eventName: Observable<String>
+            let selectPlace: Observable<Void>
+            let isAllDay: Observable<Bool>
+
+        }
+        """
+
+        let formattedInput = (try? format(input, rules: [FormatRules.insertBlankLinesAtScope])) ?? ""
+        XCTAssertEqual(output, formattedInput)
+    }
+
+    func testStructWithoutFuncs_notFormat() {
+        let input = """
+        struct Input {
+
+            let eventName: Observable<String>
+            let selectPlace: Observable<Void>
+            let isAllDay: Observable<Bool>
+
+        }
+        """
+
+        let output = """
+        struct Input {
+
+            let eventName: Observable<String>
+            let selectPlace: Observable<Void>
+            let isAllDay: Observable<Bool>
+
+        }
+        """
+
+        let formattedInput = (try? format(input, rules: [FormatRules.insertBlankLinesAtScope])) ?? ""
+        XCTAssertEqual(output, formattedInput)
+    }
+
 //    func testBlanklineAfterCallSuper() {
 //        let input = """
 //        override func foo() {

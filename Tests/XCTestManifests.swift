@@ -116,6 +116,8 @@ extension BlanklineInScopeTests {
         ("testBlankLinesInStruct", testBlankLinesInStruct),
         ("testBlankLinesInStruct_noSpacing", testBlankLinesInStruct_noSpacing),
         ("testGuardLet", testGuardLet),
+        ("testStructWithoutFuncs", testStructWithoutFuncs),
+        ("testStructWithoutFuncs_notFormat", testStructWithoutFuncs_notFormat),
     ]
 }
 
